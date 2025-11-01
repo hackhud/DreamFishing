@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DreamFishing">
+    <output-path>$PROJECT_DIR$/out/artifacts/DreamFishing</output-path>
+    <root id="archive" name="DreamFishing.jar">
+      <element id="module-output" name="DreamFishing" />
+    </root>
+  </artifact>
+</component>

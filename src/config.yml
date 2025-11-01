@@ -1,0 +1,6 @@
+minFishingTiming: 5
+maxFishingTiming: 25
+
+fishingSpeedLore: "   §8- §2Эффективность ловли: {value}%"
+fishingProgressLore: "   §8- §6Прогресс улучшения: {current}/{needed}"
+
