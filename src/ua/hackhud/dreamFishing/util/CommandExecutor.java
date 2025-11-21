@@ -40,7 +40,7 @@ public class CommandExecutor {
     private String replacePlaceholders(String command, Player player, DropItem dropItem) {
         return command.replace(PLAYER_PLACEHOLDER, player.getName())
                 .replace(ITEMID_PLACEHOLDER, String.valueOf(dropItem.getItemStack().getTypeId()))
-                .replace(ITEMNAME_PLACEHOLDER, TextUtil.stripHexColors(dropItem.getItemStack().getItemMeta().getDisplayName()))
+                .replace(ITEMNAME_PLACEHOLDER, TextUtils.stripHexColors(dropItem.getItemStack().getItemMeta().getDisplayName()))
                 .replace(ITEMCOUNT_PLACEHOLDER, String.valueOf(dropItem.getItemStack().getAmount()));
     }
 }

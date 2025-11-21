@@ -12,8 +12,10 @@ public class ConfigManager {
     private int maxFishingTiming;
     private String fishingSpeedLore;
     private String fishingProgressLore;
+    private final Main instance;
 
-    public ConfigManager() {
+    public ConfigManager(Main instance) {
+        this.instance = instance;
         loadConfig();
     }
 
@@ -27,12 +29,12 @@ public class ConfigManager {
     }
 
     private File getConfigFile() {
-        return new File(Main.getPlugin().getDataFolder(), "config.yml");
+        return new File(instance.getDataFolder(), "config.yml");
     }
 
     private void ensureConfigExists(File configFile) {
         if (!configFile.exists()) {
-            Main.getPlugin().saveResource("config.yml", false);
+            instance.saveResource("config.yml", false);
         }
     }
 

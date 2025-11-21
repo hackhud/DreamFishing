@@ -3,7 +3,7 @@ package ua.hackhud.dreamFishing.util;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ua.hackhud.dreamFishing.Main;
+import ua.hackhud.dreamFishing.config.ConfigManager;
 import ua.hackhud.dreamFishing.entities.RodProgress;
 
 import java.util.List;
@@ -11,6 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoreParser {
+
+    private final ConfigManager configManager;
+
+    public LoreParser(ConfigManager configManager) {
+        this.configManager = configManager;
+    }
 
     private static final String CURRENT_KEY = "current";
     private static final String NEEDED_KEY = "needed";
@@ -23,7 +29,7 @@ public class LoreParser {
             return RodProgress.empty();
         }
 
-        String progressPattern = Main.getPlugin().getConfigManager().getFishingProgressLore();
+        String progressPattern = configManager.getFishingProgressLore();
         if (isEmptyPattern(progressPattern)) {
             return RodProgress.empty();
         }
@@ -46,7 +52,7 @@ public class LoreParser {
             return 0;
         }
 
-        String speedPattern = Main.getPlugin().getConfigManager().getFishingSpeedLore();
+        String speedPattern = configManager.getFishingSpeedLore();
         if (isEmptyPattern(speedPattern)) {
             return 0;
         }
@@ -67,7 +73,7 @@ public class LoreParser {
         ItemMeta meta = rod.getItemMeta();
         List<String> lore = meta.getLore();
 
-        String progressPattern = Main.getPlugin().getConfigManager().getFishingProgressLore();
+        String progressPattern = configManager.getFishingProgressLore();
         if (isEmptyPattern(progressPattern)) {
             return;
         }

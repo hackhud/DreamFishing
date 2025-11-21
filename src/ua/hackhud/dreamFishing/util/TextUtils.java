@@ -1,8 +1,8 @@
 package ua.hackhud.dreamFishing.util;
 
-public final class TextUtil {
+public final class TextUtils {
 
-    private TextUtil() {
+    private TextUtils() {
     }
 
     public static String stripHexColors(String input) {

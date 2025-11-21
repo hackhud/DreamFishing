@@ -10,20 +10,24 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import ua.hackhud.dreamFishing.entities.DropItem;
 import ua.hackhud.dreamFishing.entities.FishingRod;
+import ua.hackhud.dreamFishing.entities.Lake;
 import ua.hackhud.dreamFishing.service.FishingDelayService;
+import ua.hackhud.dreamFishing.service.FishingLakeService;
 import ua.hackhud.dreamFishing.service.FishingRodService;
 import ua.hackhud.dreamFishing.service.FishingRewardService;
 
 public class FishingListener implements Listener {
 
-    private final FishingRodService rodService;
-    private final FishingDelayService delayService;
-    private final FishingRewardService rewardService;
+    private final FishingRodService fishingRodService;
+    private final FishingDelayService fishingDelayService;
+    private final FishingRewardService fishingRewardService;
+    private final FishingLakeService fishingLakeService;
 
-    public FishingListener() {
-        this.rodService = new FishingRodService();
-        this.delayService = new FishingDelayService();
-        this.rewardService = new FishingRewardService();
+    public FishingListener(FishingRodService fishingRodService, FishingDelayService fishingDelayService, FishingRewardService fishingRewardService, FishingLakeService fishingLakeService) {
+        this.fishingRodService = fishingRodService;
+        this.fishingDelayService = fishingDelayService;
+        this.fishingRewardService = fishingRewardService;
+        this.fishingLakeService = fishingLakeService;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -31,45 +35,50 @@ public class FishingListener implements Listener {
         Player player = event.getPlayer();
         ItemStack rodItemStack = player.getItemInHand();
 
-        FishingRod fishingRod = rodService.validateAndGetRod(player, rodItemStack, event);
+        FishingRod fishingRod = fishingRodService.validateAndGetRod(player, rodItemStack, event);
         if (fishingRod == null) {
+            return;
+        }
+
+        Lake lake = fishingLakeService.validateAndGetLake(player, fishingRod, event);
+        if (lake == null) {
             return;
         }
 
         switch (event.getState()) {
             case FISHING:
-                handleFishingStart(event, player, rodItemStack, fishingRod);
+                handleFishingStart(event, player, rodItemStack, lake);
                 break;
             case CAUGHT_FISH:
-                handleCaughtFish(event, player, rodItemStack, fishingRod);
+                handleCaughtFish(event, player, rodItemStack, fishingRod, lake);
                 break;
             case FAILED_ATTEMPT:
             case CAUGHT_ENTITY:
             case IN_GROUND:
-                delayService.cancelFishing(player);
+                fishingDelayService.cancelFishing(player);
                 break;
         }
     }
 
-    private void handleFishingStart(PlayerFishEvent event, Player player, ItemStack rod, FishingRod fishingRod) {
+    private void handleFishingStart(PlayerFishEvent event, Player player, ItemStack rod, Lake lake) {
         Fish hook = event.getHook();
         if (hook == null) {
             return;
         }
 
-        delayService.startCustomFishing(player, hook, rod);
+        fishingDelayService.startCustomFishing(player, hook, rod, lake);
     }
 
-    private void handleCaughtFish(PlayerFishEvent event, Player player, ItemStack rod, FishingRod fishingRod) {
+    private void handleCaughtFish(PlayerFishEvent event, Player player, ItemStack rod, FishingRod fishingRod, Lake lake) {
         if (!(event.getCaught() instanceof Item)) {
             return;
         }
 
         Item caughtItem = (Item) event.getCaught();
-        DropItem drop = rewardService.processCatch(caughtItem, fishingRod);
+        DropItem drop = fishingRewardService.processCatch(caughtItem, fishingRod, lake);
 
-        rodService.updateRodProgress(rod, fishingRod, player);
-        rewardService.executeRewards(drop, fishingRod, player);
-        delayService.cancelFishing(player);
+        fishingRodService.updateRodProgress(rod, fishingRod, player);
+        fishingRewardService.executeRewards(drop, fishingRod, player, lake);
+        fishingDelayService.cancelFishing(player);
     }
 }

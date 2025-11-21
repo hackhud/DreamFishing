@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import ua.hackhud.dreamFishing.Main;
+import ua.hackhud.dreamFishing.entities.Lake;
 
 import java.util.Map;
 import java.util.Random;
@@ -14,23 +15,25 @@ public class FishingDelayService {
 
     private final Map<Player, FishingTask> activeTasks;
     private final Random random;
+    private final Main instance;
     private final FishingRodService rodService;
 
-    public FishingDelayService() {
+    public FishingDelayService(Main instance, FishingRodService fishingRodService) {
         this.activeTasks = new ConcurrentHashMap<>();
         this.random = new Random();
-        this.rodService = new FishingRodService();
+        this.rodService = fishingRodService;
+        this.instance = instance;
     }
 
-    public void startCustomFishing(Player player, Fish hook, ItemStack rod) {
+    public void startCustomFishing(Player player, Fish hook, ItemStack rod, Lake lake) {
         cancelExistingTask(player);
 
         hook.setBiteChance(0.0);
 
-        int delay = calculateDelay(rod);
-        FishingTask task = new FishingTask(player, hook);
+        int delay = calculateDelay(rod, lake);
+        FishingTask task = new FishingTask(player, hook, rod, lake);
 
-        task.runTaskLater(Main.getPlugin(), delay);
+        task.runTaskLater(instance, delay);
         activeTasks.put(player, task);
     }
 
@@ -45,15 +48,15 @@ public class FishingDelayService {
         cancelFishing(player);
     }
 
-    private int calculateDelay(ItemStack rod) {
-        int baseDelay = generateRandomDelay();
+    private int calculateDelay(ItemStack rod, Lake lake) {
+        int baseDelay = generateRandomDelay(lake);
         int fishingSpeed = rodService.getFishingSpeed(rod);
         return applySpeedModifier(baseDelay, fishingSpeed);
     }
 
-    private int generateRandomDelay() {
-        int minTicks = Main.getPlugin().getConfigManager().getMinFishingTiming() * 20;
-        int maxTicks = Main.getPlugin().getConfigManager().getMaxFishingTiming() * 20;
+    private int generateRandomDelay(Lake lake) {
+        int minTicks = lake.getMinFishingTime() * 20;
+        int maxTicks = lake.getMaxFishingTime() * 20;
         return minTicks + random.nextInt(maxTicks - minTicks + 1);
     }
 
@@ -65,10 +68,14 @@ public class FishingDelayService {
     private class FishingTask extends BukkitRunnable {
         private final Player player;
         private final Fish hook;
+        private final ItemStack rod;
+        private final Lake lake;
 
-        public FishingTask(Player player, Fish hook) {
+        public FishingTask(Player player, Fish hook, ItemStack rod, Lake lake) {
             this.player = player;
             this.hook = hook;
+            this.rod = rod;
+            this.lake = lake;
         }
 
         @Override
@@ -79,13 +86,28 @@ public class FishingDelayService {
             }
 
             hook.setBiteChance(1.0);
-            activeTasks.remove(player);
+
+            int biteDuration = 6 + random.nextInt(5);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (isValidFishingState()) {
+                        hook.setBiteChance(0.0);
+
+                        int nextBiteDelay = 40 + random.nextInt(40);
+                        FishingTask.this.runTaskLater(instance, nextBiteDelay);
+                    } else {
+                        activeTasks.remove(player);
+                    }
+                }
+            }.runTaskLater(instance, biteDuration);
         }
 
         private boolean isValidFishingState() {
             return player.isOnline() &&
                     !hook.isDead() &&
-                    !hook.isOnGround();
+                    !hook.isOnGround() &&
+                    hook.isValid();
         }
     }
 }

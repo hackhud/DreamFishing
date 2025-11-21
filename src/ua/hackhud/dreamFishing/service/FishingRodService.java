@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import ua.hackhud.dreamFishing.Main;
+import ua.hackhud.dreamFishing.config.RodConfigManager;
 import ua.hackhud.dreamFishing.entities.FishingRod;
 import ua.hackhud.dreamFishing.entities.RodProgress;
 import ua.hackhud.dreamFishing.util.CommandExecutor;
@@ -15,24 +16,26 @@ public class FishingRodService {
 
     private final LoreParser loreParser;
     private final CommandExecutor commandExecutor;
+    private final RodConfigManager rodConfigManager;
 
-    public FishingRodService() {
-        this.loreParser = new LoreParser();
-        this.commandExecutor = new CommandExecutor();
+    public FishingRodService(LoreParser loreParser, CommandExecutor commandExecutor, RodConfigManager rodConfigManager) {
+        this.loreParser = loreParser;
+        this.commandExecutor = commandExecutor;
+        this.rodConfigManager = rodConfigManager;
     }
 
     public FishingRod validateAndGetRod(Player player, ItemStack rod, PlayerFishEvent event) {
         if (!isValidRodItem(rod)) {
-            MessageUtils.sendErrorMessage(player, "&c>> Неправильная удочка!");
+            MessageUtils.sendError(player, "Неправильная удочка!");
             event.setCancelled(true);
             return null;
         }
 
         String rodName = rod.getItemMeta().getDisplayName();
-        FishingRod fishingRod = Main.getPlugin().getRodConfigManager().getRod(rodName);
+        FishingRod fishingRod = rodConfigManager.getRod(rodName);
 
         if (fishingRod == null) {
-            MessageUtils.sendErrorMessage(player, "&c>> Неизвестная удочка!");
+            MessageUtils.sendError(player, "Неизвестная удочка!");
             event.setCancelled(true);
             return null;
         }
@@ -52,7 +55,7 @@ public class FishingRodService {
         loreParser.updateProgress(rod, newProgress);
 
         if (newProgress.isComplete()) {
-            ItemStack transformedRod = Main.getPlugin().getRodConfigManager()
+            ItemStack transformedRod = rodConfigManager
                     .getRodItemStack(fishingRod.getTransformTargetName());
             if (transformedRod != null) {
                 rod.setItemMeta(transformedRod.getItemMeta());

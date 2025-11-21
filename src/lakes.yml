@@ -1,16 +1,14 @@
 lakes:
   starterEasy:
     displayName: "&2Стартовое озеро"
-    regionName: "starterEasy"
+    regionName: "testfishing"
     updateTime: 3600
-    minFishingTiming: 10
-    maxFishingTiming: 30
+    minFishingTime: 10
+    maxFishingTime: 30
     allowedRods:
       starter:
-        dropTable: "starter"
+        dropTable: "test"
         commands:
-          - "msg %player% &aВы выловили что-то из стартового озера стартовой удочкой!"
+          - "text %player% &aВы выловили %itemname% из стартового озера стартовой удочкой!"
     baseCommands:
       - "msg %player% &aВы выловили что-то из стартового озера!"
-
-## Пофиксить что рыба бесконечно клюет

@@ -17,8 +17,10 @@ public class RodConfigManager {
     private FileConfiguration config;
     private final Map<String, FishingRod> rods = new HashMap<>();
     private final Map<String, ItemStack> rodsItemStack = new HashMap<>();
+    private final Main instance;
 
-    public RodConfigManager() {
+    public RodConfigManager(Main instance) {
+        this.instance = instance;
         loadConfig();
     }
 
@@ -31,12 +33,12 @@ public class RodConfigManager {
     }
 
     private File getConfigFile() {
-        return new File(Main.getPlugin().getDataFolder(), "fishing-rods.yml");
+        return new File(instance.getDataFolder(), "fishing-rods.yml");
     }
 
     private void ensureConfigExists(File configFile) {
         if (!configFile.exists()) {
-            Main.getPlugin().saveResource("fishing-rods.yml", false);
+            instance.saveResource("fishing-rods.yml", false);
         }
     }
 
@@ -70,11 +72,9 @@ public class RodConfigManager {
     private FishingRod createFishingRod(String name, ConfigurationSection section) {
         String displayName = section.getString("displayName");
         String dropTable = section.getString("dropTable");
-        String transformTargetName = section.getString("transformTargetName");
         List<String> transformCommands = section.getStringList("transformCommands");
-        List<String> baseCommands = section.getStringList("baseCommands");
 
-        return new FishingRod(name, displayName, dropTable, transformTargetName, transformCommands, baseCommands);
+        return new FishingRod(name, displayName, dropTable, transformCommands);
     }
 
     public void addRodItemStack(String key, ItemStack rod) {
@@ -92,7 +92,7 @@ public class RodConfigManager {
             config.save(getConfigFile());
         } catch (Exception e) {
             e.printStackTrace();
-            Main.getPlugin().getLogger().severe("Не удалось сохранить удочку в конфиг: " + key);
+            instance.getLogger().severe("Не удалось сохранить удочку в конфиг: " + key);
         }
     }
 

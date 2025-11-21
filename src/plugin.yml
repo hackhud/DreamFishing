@@ -1,6 +1,7 @@
 name: DreamFishing
 main: ua.hackhud.dreamFishing.Main
 version: 1.1
+softdepend: [WorldGuard, WorldEdit]
 author: hackhud
 
 commands:

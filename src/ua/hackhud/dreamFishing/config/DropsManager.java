@@ -14,8 +14,10 @@ import java.util.*;
 
 public class DropsManager {
     private final Map<String, WeightedDropTable> weightedTables = new HashMap<>();
+    private final Main instance;
 
-    public DropsManager() {
+    public DropsManager(Main instance) {
+        this.instance = instance;
         loadDrops();
     }
 
@@ -64,7 +66,7 @@ public class DropsManager {
     }
 
     private File getDropsFolder() {
-        return new File(Main.getPlugin().getDataFolder(), "drops");
+        return new File(instance.getDataFolder(), "drops");
     }
 
     private void ensureDropsFolderExists(File folder) {

@@ -3,8 +3,11 @@ package ua.hackhud.dreamFishing.service;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import ua.hackhud.dreamFishing.Main;
+import ua.hackhud.dreamFishing.config.DropsManager;
 import ua.hackhud.dreamFishing.entities.DropItem;
 import ua.hackhud.dreamFishing.entities.FishingRod;
+import ua.hackhud.dreamFishing.entities.Lake;
+import ua.hackhud.dreamFishing.entities.LakeFishingRod;
 import ua.hackhud.dreamFishing.util.CommandExecutor;
 
 import java.util.List;
@@ -12,24 +15,38 @@ import java.util.List;
 public class FishingRewardService {
 
     private final CommandExecutor commandExecutor;
+    private final DropsManager dropsManger;
 
-    public FishingRewardService() {
-        this.commandExecutor = new CommandExecutor();
+    public FishingRewardService(CommandExecutor commandExecutor, DropsManager dropsManager) {
+        this.commandExecutor = commandExecutor;
+        this.dropsManger = dropsManager;
     }
 
-    public DropItem processCatch(Item caughtItem, FishingRod rod) {
-        DropItem drop = Main.getPlugin().getDropsManager().getRandomDrop(rod.getDropTable());
+    public DropItem processCatch(Item caughtItem, FishingRod rod, Lake lake) {
+        LakeFishingRod lakeFishingRod = getLakeFishingRod(rod, lake);
+        DropItem drop = dropsManger.getRandomDrop(lakeFishingRod.getDropTable());
         if (drop != null) {
             caughtItem.setItemStack(drop.getItemStack().clone());
         }
         return drop;
     }
 
-    public void executeRewards(DropItem drop, FishingRod rod, Player player) {
+    private LakeFishingRod getLakeFishingRod(FishingRod rod, Lake lake) {
+        for (LakeFishingRod lakeRod : lake.getRods()) {
+            if (rod.equals(lakeRod.getRod())) {
+                return lakeRod;
+            }
+        }
+        return null;
+    }
+
+    public void executeRewards(DropItem drop, FishingRod rod, Player player, Lake lake) {
         if (drop != null) {
             executeDropCommands(drop, player);
         }
-        executeRodCommands(rod.getBaseCommands(), player);
+
+        LakeFishingRod lakeRod = getLakeFishingRod(rod, lake);
+        executeRodCommands(lakeRod.getCommands(), player);
     }
 
     private void executeDropCommands(DropItem drop, Player player) {

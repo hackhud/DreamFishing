@@ -4,8 +4,5 @@ rods:
     transformTargetName: "starter"
     transformCommands:
       - "bc Удочка трансформировалась!"
-    baseCommands:
-      - "eco give %player% 5"
-      - "msg %player% &aВы получили опыт рыбалки!"
 
 rodItemStack:

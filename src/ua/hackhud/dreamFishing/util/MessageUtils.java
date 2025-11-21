@@ -1,11 +1,24 @@
 package ua.hackhud.dreamFishing.util;
 
-import org.bukkit.entity.Player;
-import ua.hackhud.dreamFishing.Main;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 
-public class MessageUtils {
+public final class MessageUtils {
 
-    public static void sendErrorMessage(Player player, String message) {
-        Main.getPlugin().sendMessage(player, message);
+    private static final String PREFIX_INFO = "&e>> DreamFishing: ";
+    private static final String PREFIX_ERROR = "&c>> DreamFishing: ";
+
+    private MessageUtils() {}
+
+    public static void sendRaw(CommandSender target, String message) {
+        target.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+    }
+
+    public static void sendInfo(CommandSender target, String message) {
+        sendRaw(target, PREFIX_INFO + message);
+    }
+
+    public static void sendError(CommandSender target, String message) {
+        sendRaw(target, PREFIX_ERROR + message);
     }
 }
