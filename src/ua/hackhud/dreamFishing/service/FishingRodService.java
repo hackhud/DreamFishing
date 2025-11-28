@@ -3,7 +3,6 @@ package ua.hackhud.dreamFishing.service;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
-import ua.hackhud.dreamFishing.Main;
 import ua.hackhud.dreamFishing.config.RodConfigManager;
 import ua.hackhud.dreamFishing.entities.FishingRod;
 import ua.hackhud.dreamFishing.entities.RodProgress;
@@ -31,8 +30,7 @@ public class FishingRodService {
             return null;
         }
 
-        String rodName = rod.getItemMeta().getDisplayName();
-        FishingRod fishingRod = rodConfigManager.getRod(rodName);
+        FishingRod fishingRod = resolveRod(rod);
 
         if (fishingRod == null) {
             MessageUtils.sendError(player, "Неизвестная удочка!");
@@ -49,14 +47,11 @@ public class FishingRodService {
         }
 
         RodProgress progress = loreParser.extractProgress(rod);
-
         RodProgress newProgress = progress.increment();
-
         loreParser.updateProgress(rod, newProgress);
 
         if (newProgress.isComplete()) {
-            ItemStack transformedRod = rodConfigManager
-                    .getRodItemStack(fishingRod.getTransformTargetName());
+            ItemStack transformedRod = rodConfigManager.getRodItemStack(fishingRod.getTransformTargetName());
             if (transformedRod != null) {
                 rod.setItemMeta(transformedRod.getItemMeta());
                 commandExecutor.executeForPlayer(fishingRod.getTransformCommands(), player);
@@ -75,5 +70,17 @@ public class FishingRodService {
         return rod != null &&
                 rod.hasItemMeta() &&
                 rod.getItemMeta().hasDisplayName();
+    }
+
+    private FishingRod resolveRod(ItemStack rodItem) {
+        String displayName = rodItem.getItemMeta().getDisplayName();
+
+        FishingRod fishingRod = rodConfigManager.getRod(displayName);
+        if (fishingRod != null) return fishingRod;
+
+        fishingRod = rodConfigManager.findRodByDisplayName(displayName);
+        if (fishingRod != null) return fishingRod;
+
+        return rodConfigManager.findRodByItemStack(rodItem);
     }
 }

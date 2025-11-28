@@ -6,13 +6,16 @@ import ua.hackhud.dreamFishing.config.ConfigManager;
 import ua.hackhud.dreamFishing.config.DropsManager;
 import ua.hackhud.dreamFishing.config.LakeConfigManager;
 import ua.hackhud.dreamFishing.config.RodConfigManager;
+import ua.hackhud.dreamFishing.hologram.HologramInitializer;
 import ua.hackhud.dreamFishing.listener.FishingListener;
 import ua.hackhud.dreamFishing.service.FishingDelayService;
 import ua.hackhud.dreamFishing.service.FishingLakeService;
 import ua.hackhud.dreamFishing.service.FishingRewardService;
 import ua.hackhud.dreamFishing.service.FishingRodService;
+import ua.hackhud.dreamFishing.service.LakeUpdateService;
 import ua.hackhud.dreamFishing.util.CommandExecutor;
 import ua.hackhud.dreamFishing.util.LoreParser;
+import ua.hackhud.dreamholohandler.HoloManager;
 
 public class Main extends JavaPlugin {
 
@@ -28,6 +31,10 @@ public class Main extends JavaPlugin {
     private FishingDelayService fishingDelayService;
     private FishingRewardService fishingRewardService;
     private FishingLakeService fishingLakeService;
+    private LakeUpdateService lakeUpdateService;
+
+    private HologramInitializer hologramInitializer;
+    private HoloManager holoManager;
 
     @Override
     public void onEnable() {
@@ -35,8 +42,17 @@ public class Main extends JavaPlugin {
         getLogger().info("DreamFishing " + getDescription().getVersion() + " enabled!");
         registerConfigs();
         initServices();
+        initHolograms();
+        initLakeUpdater();
         getServer().getPluginManager().registerEvents(new FishingListener(fishingRodService, fishingDelayService, fishingRewardService, fishingLakeService), this);
         getCommand("dreamfishing").setExecutor(new DreamFishingCommand(this));
+    }
+
+    @Override
+    public void onDisable() {
+        if (lakeUpdateService != null) {
+            lakeUpdateService.stop();
+        }
     }
 
     public void registerConfigs() {
@@ -53,6 +69,17 @@ public class Main extends JavaPlugin {
         fishingDelayService = new FishingDelayService(instance, fishingRodService);
         fishingRewardService = new FishingRewardService(commandExecutor, dropsManager);
         fishingLakeService = new FishingLakeService(lakeConfigManager);
+    }
+
+    public void initHolograms() {
+        holoManager = ua.hackhud.dreamholohandler.Main.getPlugin().getHoloManager();
+        hologramInitializer = new HologramInitializer(holoManager);
+        hologramInitializer.initLakeHolograms(lakeConfigManager.getLakes());
+    }
+
+    public void initLakeUpdater() {
+        lakeUpdateService = new LakeUpdateService(instance, lakeConfigManager, holoManager);
+        lakeUpdateService.start();
     }
 
     public ConfigManager getConfigManager() {
@@ -93,6 +120,10 @@ public class Main extends JavaPlugin {
 
     public FishingLakeService getFishingLakeService() {
         return fishingLakeService;
+    }
+
+    public LakeUpdateService getLakeUpdateService() {
+        return lakeUpdateService;
     }
 
 }

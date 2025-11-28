@@ -23,5 +23,6 @@
     <orderEntry type="library" name="core" level="project" />
     <orderEntry type="library" name="WorldGuard" level="project" />
     <orderEntry type="library" name="WorldEdit" level="project" />
+    <orderEntry type="library" name="DreamHoloHandler" level="project" />
   </component>
 </module>

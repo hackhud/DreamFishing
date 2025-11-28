@@ -24,8 +24,9 @@ public class FishingLakeService {
 
     public Lake validateAndGetLake(Player player, FishingRod rod, PlayerFishEvent event) {
         List<String> regions = RegionUtils.getRegionsByLocation(event.getHook().getLocation());
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bc " + regions);
         if (regions.isEmpty()) {
+            MessageUtils.sendError(player, "Неизвестное озеро!");
+            event.setCancelled(true);
             return null;
         }
 
@@ -46,11 +47,6 @@ public class FishingLakeService {
     }
 
     private boolean isRodAllowed(Lake lake, FishingRod fishingRod) {
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bc " + lake.getRods().size());
-        for (LakeFishingRod lakeRod : lake.getRods()) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bc " + lakeRod.getRod().getName());
-        }
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bc " + fishingRod.getName());
         return lake.getRods().stream()
                 .anyMatch(lakeRod -> fishingRod.equals(lakeRod.getRod()));
     }

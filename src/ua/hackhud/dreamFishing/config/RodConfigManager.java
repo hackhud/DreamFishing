@@ -1,5 +1,6 @@
 package ua.hackhud.dreamFishing.config;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -44,22 +45,19 @@ public class RodConfigManager {
 
     private void loadRods() {
         rods.clear();
-
         ConfigurationSection rodsSection = config.getConfigurationSection("rods");
         if (rodsSection == null) return;
 
         for (String rodKey : rodsSection.getKeys(false)) {
             ConfigurationSection rodSection = rodsSection.getConfigurationSection(rodKey);
             if (rodSection == null) continue;
-
             FishingRod rod = createFishingRod(rodKey, rodSection);
-            rods.put(rod.getDisplayName(), rod);
+            rods.put(rodKey, rod);
         }
     }
 
     private void loadRodItemStack() {
         rodsItemStack.clear();
-
         ConfigurationSection rodItemStackSection = config.getConfigurationSection("rodItemStack");
         if (rodItemStackSection == null) return;
 
@@ -69,12 +67,11 @@ public class RodConfigManager {
         }
     }
 
-    private FishingRod createFishingRod(String name, ConfigurationSection section) {
+    private FishingRod createFishingRod(String rodKey, ConfigurationSection section) {
         String displayName = section.getString("displayName");
-        String dropTable = section.getString("dropTable");
+        String transformTargetName = section.getString("transformTargetName");
         List<String> transformCommands = section.getStringList("transformCommands");
-
-        return new FishingRod(name, displayName, dropTable, transformCommands);
+        return new FishingRod(rodKey, displayName, transformTargetName, transformCommands);
     }
 
     public void addRodItemStack(String key, ItemStack rod) {
@@ -92,10 +89,9 @@ public class RodConfigManager {
             config.save(getConfigFile());
         } catch (Exception e) {
             e.printStackTrace();
-            instance.getLogger().severe("Не удалось сохранить удочку в конфиг: " + key);
+            instance.getLogger().severe("Ошибка при сохранении ItemStack для удочки: " + key);
         }
     }
-
 
     public void reload() {
         loadConfig();
@@ -109,11 +105,27 @@ public class RodConfigManager {
         return rodsItemStack;
     }
 
-    public FishingRod getRod(String name) {
-        return rods.get(name);
+    public FishingRod getRod(String rodKey) {
+        return rods.get(rodKey);
     }
 
-    public ItemStack getRodItemStack(String name) {
-        return rodsItemStack.get(name);
+    public ItemStack getRodItemStack(String rodKey) {
+        return rodsItemStack.get(rodKey);
+    }
+
+    public FishingRod findRodByDisplayName(String displayName) {
+        if (displayName == null) return null;
+        String normalized = ChatColor.stripColor(displayName);
+        return rods.values().stream()
+                .filter(rod -> normalized.equals(ChatColor.stripColor(rod.getDisplayName())))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public FishingRod findRodByItemStack(ItemStack itemStack) {
+        if (itemStack == null || !itemStack.hasItemMeta() || !itemStack.getItemMeta().hasDisplayName()) {
+            return null;
+        }
+        return findRodByDisplayName(itemStack.getItemMeta().getDisplayName());
     }
 }

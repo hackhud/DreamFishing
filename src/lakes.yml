@@ -10,5 +10,12 @@ lakes:
         dropTable: "test"
         commands:
           - "text %player% &aВы выловили %itemname% из стартового озера стартовой удочкой!"
+    hologram:
+      x: 100
+      y: 100
+      z: 100
+      world: ""
+      scale: 0.025
+      text: ""
     baseCommands:
       - "msg %player% &aВы выловили что-то из стартового озера!"

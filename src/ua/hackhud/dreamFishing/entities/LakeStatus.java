@@ -9,4 +9,19 @@ public class LakeStatus {
         this.nextUpdate = nextUpdate;
     }
 
+    public double getFullness() {
+        return fullness;
+    }
+
+    public void setFullness(double fullness) {
+        this.fullness = fullness;
+    }
+
+    public long getNextUpdate() {
+        return nextUpdate;
+    }
+
+    public void setNextUpdate(long nextUpdate) {
+        this.nextUpdate = nextUpdate;
+    }
 }

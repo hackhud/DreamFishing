@@ -1,5 +1,6 @@
 package ua.hackhud.dreamFishing.config;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -8,13 +9,11 @@ import ua.hackhud.dreamFishing.entities.FishingRod;
 import ua.hackhud.dreamFishing.entities.Lake;
 import ua.hackhud.dreamFishing.entities.LakeFishingRod;
 import ua.hackhud.dreamFishing.entities.LakeStatus;
+import ua.hackhud.dreamholohandler.Hologram;
+import ua.hackhud.dreamholohandler.WorldUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LakeConfigManager {
 
@@ -49,6 +48,7 @@ public class LakeConfigManager {
 
     private void loadLakes() {
         lakes.clear();
+        lakesByRegion.clear();
 
         ConfigurationSection lakesSection = config.getConfigurationSection("lakes");
         if (lakesSection == null) return;
@@ -78,7 +78,20 @@ public class LakeConfigManager {
 
         LakeStatus lakeStatus = loadLakeStatus(section);
 
-        return new Lake(name, displayName, regionName, updateTime, minFishingTime, maxFishingTime, rods, baseCommands, lakeStatus);
+        Hologram hologram = createLakeHologram(section.getConfigurationSection("hologram"));
+
+        return new Lake(name, displayName, regionName, updateTime, minFishingTime, maxFishingTime, rods, baseCommands, lakeStatus, hologram);
+    }
+
+    private Hologram createLakeHologram(ConfigurationSection section) {
+        float x = (float) section.getDouble("x");
+        float y = (float) section.getDouble("y");
+        float z = (float) section.getDouble("z");
+        float scale = (float) section.getDouble("scale");
+        String text = section.getString("text");
+        int dimensionId = WorldUtils.getDimensionId(Bukkit.getWorld(section.getString("world")));
+
+        return new Hologram(x, y, z, scale, text, dimensionId, -1);
     }
 
     private List<LakeFishingRod> loadRods(ConfigurationSection lakeSection) {
@@ -95,6 +108,7 @@ public class LakeConfigManager {
 
             FishingRod rod = rodConfigManager.getRod(rodKey);
             if (rod == null || dropTable == null) {
+                instance.getLogger().warning("Пропуск allowedRods/" + rodKey + ": удочка не найдена или отсутствует dropTable");
                 continue;
             }
 

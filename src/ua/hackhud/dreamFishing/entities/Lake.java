@@ -1,5 +1,7 @@
 package ua.hackhud.dreamFishing.entities;
 
+import ua.hackhud.dreamholohandler.Hologram;
+
 import java.util.List;
 
 public class Lake {
@@ -12,8 +14,9 @@ public class Lake {
     private final List<LakeFishingRod> rods;
     private final List<String> baseCommands;
     private final LakeStatus lakeStatus;
+    private final Hologram hologram;
 
-    public Lake(String name, String displayName, String regionName, int updateTime, int minFishingTime, int maxFishingTime, List<LakeFishingRod> rods, List<String> baseCommands, LakeStatus lakeStatus) {
+    public Lake(String name, String displayName, String regionName, int updateTime, int minFishingTime, int maxFishingTime, List<LakeFishingRod> rods, List<String> baseCommands, LakeStatus lakeStatus, Hologram hologram) {
         this.name = name;
         this.displayName = displayName;
         this.regionName = regionName;
@@ -23,10 +26,23 @@ public class Lake {
         this.rods = rods;
         this.baseCommands = baseCommands;
         this.lakeStatus = lakeStatus;
+        this.hologram = hologram;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public String getRegionName() {
         return regionName;
+    }
+
+    public int getUpdateTime() {
+        return updateTime;
     }
 
     public int getMinFishingTime() {
@@ -41,7 +57,15 @@ public class Lake {
         return rods;
     }
 
+    public List<String> getBaseCommands() {
+        return baseCommands;
+    }
+
     public LakeStatus getLakeStatus() {
         return lakeStatus;
+    }
+
+    public Hologram getHologram() {
+        return hologram;
     }
 }

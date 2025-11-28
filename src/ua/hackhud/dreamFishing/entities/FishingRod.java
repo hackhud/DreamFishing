@@ -3,6 +3,7 @@ package ua.hackhud.dreamFishing.entities;
 import java.util.List;
 
 public class FishingRod {
+
     private final String name;
     private final String displayName;
     private final String transformTargetName;
@@ -30,5 +31,4 @@ public class FishingRod {
     public List<String> getTransformCommands() {
         return transformCommands;
     }
-
 }
