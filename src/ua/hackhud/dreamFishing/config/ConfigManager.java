@@ -8,8 +8,6 @@ import java.io.File;
 
 public class ConfigManager {
     private FileConfiguration config;
-    private int minFishingTiming;
-    private int maxFishingTiming;
     private String fishingSpeedLore;
     private String fishingProgressLore;
     private final Main instance;
@@ -23,7 +21,6 @@ public class ConfigManager {
         File configFile = getConfigFile();
         ensureConfigExists(configFile);
         this.config = YamlConfiguration.loadConfiguration(configFile);
-        loadFishingTimings();
         loadFishingSpeedLore();
         loadFishingProgressLore();
     }
@@ -38,25 +35,12 @@ public class ConfigManager {
         }
     }
 
-    private void loadFishingTimings() {
-        minFishingTiming = config.getInt("minFishingTiming");
-        maxFishingTiming = config.getInt("maxFishingTiming");
-    }
-
     private void loadFishingSpeedLore() {
         fishingSpeedLore = config.getString("fishingSpeedLore");
     }
 
     private void loadFishingProgressLore() {
         fishingProgressLore = config.getString("fishingProgressLore");
-    }
-
-    public int getMinFishingTiming() {
-        return minFishingTiming;
-    }
-
-    public int getMaxFishingTiming() {
-        return maxFishingTiming;
     }
 
     public String getFishingSpeedLore() {

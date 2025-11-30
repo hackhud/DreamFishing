@@ -24,4 +24,8 @@ public class LakeStatus {
     public void setNextUpdate(long nextUpdate) {
         this.nextUpdate = nextUpdate;
     }
+
+    public void decreaseFullness(double decrease) {
+        fullness = Math.max(0.0D, fullness - decrease);
+    }
 }

@@ -7,23 +7,30 @@ import ua.hackhud.dreamFishing.entities.DropItem;
 import ua.hackhud.dreamFishing.entities.FishingRod;
 import ua.hackhud.dreamFishing.entities.Lake;
 import ua.hackhud.dreamFishing.entities.LakeFishingRod;
-import ua.hackhud.dreamFishing.util.CommandExecutor;
+import ua.hackhud.dreamFishing.util.ServerCommandExecutor;
 
 import java.util.List;
 
 public class FishingRewardService {
 
-    private final CommandExecutor commandExecutor;
-    private final DropsManager dropsManger;
+    private final ServerCommandExecutor serverCommandExecutor;
+    private final DropsManager dropsManager;
 
-    public FishingRewardService(CommandExecutor commandExecutor, DropsManager dropsManager) {
-        this.commandExecutor = commandExecutor;
-        this.dropsManger = dropsManager;
+    public FishingRewardService(ServerCommandExecutor serverCommandExecutor, DropsManager dropsManager) {
+        this.serverCommandExecutor = serverCommandExecutor;
+        this.dropsManager = dropsManager;
     }
 
     public DropItem processCatch(Item caughtItem, FishingRod rod, Lake lake) {
         LakeFishingRod lakeFishingRod = getLakeFishingRod(rod, lake);
-        DropItem drop = dropsManger.getRandomDrop(lakeFishingRod.getDropTable());
+        if (lakeFishingRod == null) {
+            return null;
+        }
+
+        DropItem drop = dropsManager.getRandomDrop(
+                lakeFishingRod.getDropTable(),
+                lake.getLakeStatus().getFullness()
+        );
         if (drop != null) {
             caughtItem.setItemStack(drop.getItemStack().clone());
         }
@@ -49,10 +56,10 @@ public class FishingRewardService {
     }
 
     private void executeDropCommands(DropItem drop, Player player) {
-        commandExecutor.executeForPlayerDrop(drop, player);
+        serverCommandExecutor.executeForPlayerDrop(drop, player);
     }
 
     private void executeRodCommands(List<String> commands, Player player) {
-        commandExecutor.executeForPlayer(commands, player);
+        serverCommandExecutor.executeForPlayer(commands, player);
     }
 }

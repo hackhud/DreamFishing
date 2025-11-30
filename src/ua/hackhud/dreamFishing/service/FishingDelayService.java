@@ -42,6 +42,13 @@ public class FishingDelayService {
         }
     }
 
+    public void cancelAll() {
+        for (FishingTask task : activeTasks.values()) {
+            task.cancelTask();
+        }
+        activeTasks.clear();
+    }
+
     private int calculateDelay(ItemStack rod, Lake lake) {
         int minTicks = lake.getMinFishingTime() * 20;
         int maxTicks = lake.getMaxFishingTime() * 20;

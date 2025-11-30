@@ -53,7 +53,7 @@ public class DreamFishingCommand implements CommandExecutor {
 
     private void handleReload(CommandSender sender) {
         try {
-            plugin.registerConfigs();
+            plugin.initPlugin();
             MessageUtils.sendInfo(sender, "Плагин успешно перезагружен!");
         } catch (Exception e) {
             MessageUtils.sendError(sender, "Ошибка при перезагрузке плагина!");

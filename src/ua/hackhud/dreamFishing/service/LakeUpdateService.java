@@ -11,7 +11,7 @@ import ua.hackhud.dreamholohandler.Hologram;
 
 public class LakeUpdateService {
 
-    private static final long UPDATE_PERIOD_TICKS = 20L * 60;
+    private static final long UPDATE_PERIOD_TICKS = 20L * 10;
 
     private final Main instance;
     private final LakeConfigManager configManager;

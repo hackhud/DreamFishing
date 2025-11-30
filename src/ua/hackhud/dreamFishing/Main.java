@@ -6,14 +6,11 @@ import ua.hackhud.dreamFishing.config.ConfigManager;
 import ua.hackhud.dreamFishing.config.DropsManager;
 import ua.hackhud.dreamFishing.config.LakeConfigManager;
 import ua.hackhud.dreamFishing.config.RodConfigManager;
+import org.bukkit.event.HandlerList;
 import ua.hackhud.dreamFishing.hologram.HologramInitializer;
 import ua.hackhud.dreamFishing.listener.FishingListener;
-import ua.hackhud.dreamFishing.service.FishingDelayService;
-import ua.hackhud.dreamFishing.service.FishingLakeService;
-import ua.hackhud.dreamFishing.service.FishingRewardService;
-import ua.hackhud.dreamFishing.service.FishingRodService;
-import ua.hackhud.dreamFishing.service.LakeUpdateService;
-import ua.hackhud.dreamFishing.util.CommandExecutor;
+import ua.hackhud.dreamFishing.service.*;
+import ua.hackhud.dreamFishing.util.ServerCommandExecutor;
 import ua.hackhud.dreamFishing.util.LoreParser;
 import ua.hackhud.dreamholohandler.HoloManager;
 
@@ -26,12 +23,14 @@ public class Main extends JavaPlugin {
     private LakeConfigManager lakeConfigManager;
 
     private LoreParser loreParser;
-    private CommandExecutor commandExecutor;
+    private ServerCommandExecutor serverCommandExecutor;
     private FishingRodService fishingRodService;
     private FishingDelayService fishingDelayService;
     private FishingRewardService fishingRewardService;
     private FishingLakeService fishingLakeService;
     private LakeUpdateService lakeUpdateService;
+    private LakeFullnessService lakeFullnessService;
+    private FishingListener fishingListener;
 
     private HologramInitializer hologramInitializer;
     private HoloManager holoManager;
@@ -40,18 +39,34 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         instance = this;
         getLogger().info("DreamFishing " + getDescription().getVersion() + " enabled!");
-        registerConfigs();
-        initServices();
-        initHolograms();
-        initLakeUpdater();
-        getServer().getPluginManager().registerEvents(new FishingListener(fishingRodService, fishingDelayService, fishingRewardService, fishingLakeService), this);
+        initPlugin();
         getCommand("dreamfishing").setExecutor(new DreamFishingCommand(this));
     }
 
     @Override
     public void onDisable() {
+        shutdownPlugin();
+    }
+
+    public void initPlugin() {
+        shutdownPlugin();
+        registerConfigs();
+        initServices();
+        initHolograms();
+        initLakeUpdater();
+        registerListeners();
+    }
+
+    private void shutdownPlugin() {
         if (lakeUpdateService != null) {
             lakeUpdateService.stop();
+        }
+        if (fishingDelayService != null) {
+            fishingDelayService.cancelAll();
+        }
+        if (fishingListener != null) {
+            HandlerList.unregisterAll(fishingListener);
+            fishingListener = null;
         }
     }
 
@@ -64,11 +79,12 @@ public class Main extends JavaPlugin {
 
     public void initServices() {
         loreParser = new LoreParser(configManager);
-        commandExecutor = new CommandExecutor();
-        fishingRodService = new FishingRodService(loreParser, commandExecutor, rodConfigManager);
+        serverCommandExecutor = new ServerCommandExecutor();
+        fishingRodService = new FishingRodService(loreParser, serverCommandExecutor, rodConfigManager);
         fishingDelayService = new FishingDelayService(instance, fishingRodService);
-        fishingRewardService = new FishingRewardService(commandExecutor, dropsManager);
+        fishingRewardService = new FishingRewardService(serverCommandExecutor, dropsManager);
         fishingLakeService = new FishingLakeService(lakeConfigManager);
+        lakeFullnessService = new LakeFullnessService();
     }
 
     public void initHolograms() {
@@ -80,6 +96,11 @@ public class Main extends JavaPlugin {
     public void initLakeUpdater() {
         lakeUpdateService = new LakeUpdateService(instance, lakeConfigManager, holoManager);
         lakeUpdateService.start();
+    }
+
+    public void registerListeners() {
+        fishingListener = new FishingListener(fishingRodService, fishingDelayService, fishingRewardService, fishingLakeService, lakeFullnessService);
+        getServer().getPluginManager().registerEvents(fishingListener, this);
     }
 
     public ConfigManager getConfigManager() {
@@ -102,8 +123,8 @@ public class Main extends JavaPlugin {
         return loreParser;
     }
 
-    public CommandExecutor getCommandExecutor() {
-        return commandExecutor;
+    public ServerCommandExecutor getServerCommandExecutor() {
+        return serverCommandExecutor;
     }
 
     public FishingRodService getFishingRodService() {

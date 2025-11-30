@@ -81,6 +81,12 @@ public class DropsManager {
         return table.getRandomDrop();
     }
 
+    public DropItem getRandomDrop(String tableName, double fullnessPercent) {
+        WeightedDropTable table = weightedTables.get(tableName);
+        if (table == null) return null;
+        return table.getRandomDropWithFullness(fullnessPercent);
+    }
+
     public boolean addItemToDropTable(String tableName, ItemStack itemStack, double weight, List<String> commands) {
         if (itemStack == null || tableName == null || tableName.isEmpty()) {
             return false;

@@ -17,7 +17,7 @@ import java.util.Map;
 public class RodConfigManager {
     private FileConfiguration config;
     private final Map<String, FishingRod> rods = new HashMap<>();
-    private final Map<String, ItemStack> rodsItemStack = new HashMap<>();
+    private final Map<String, ItemStack> rodItemStacks = new HashMap<>();
     private final Main instance;
 
     public RodConfigManager(Main instance) {
@@ -30,7 +30,7 @@ public class RodConfigManager {
         ensureConfigExists(configFile);
         this.config = YamlConfiguration.loadConfiguration(configFile);
         loadRods();
-        loadRodItemStack();
+        loadRodItemStacks();
     }
 
     private File getConfigFile() {
@@ -56,14 +56,14 @@ public class RodConfigManager {
         }
     }
 
-    private void loadRodItemStack() {
-        rodsItemStack.clear();
+    private void loadRodItemStacks() {
+        rodItemStacks.clear();
         ConfigurationSection rodItemStackSection = config.getConfigurationSection("rodItemStack");
         if (rodItemStackSection == null) return;
 
         for (String rodKey : rodItemStackSection.getKeys(false)) {
             ItemStack rod = config.getItemStack("rodItemStack." + rodKey);
-            rodsItemStack.put(rodKey, rod);
+            rodItemStacks.put(rodKey, rod);
         }
     }
 
@@ -77,7 +77,7 @@ public class RodConfigManager {
     public void addRodItemStack(String key, ItemStack rod) {
         if (key == null || rod == null) return;
 
-        rodsItemStack.put(key, rod);
+        rodItemStacks.put(key, rod);
 
         if (config.getConfigurationSection("rodItemStack") == null) {
             config.createSection("rodItemStack");
@@ -101,8 +101,8 @@ public class RodConfigManager {
         return Collections.unmodifiableMap(rods);
     }
 
-    public Map<String, ItemStack> getRodsItemStack() {
-        return rodsItemStack;
+    public Map<String, ItemStack> getRodItemStacks() {
+        return rodItemStacks;
     }
 
     public FishingRod getRod(String rodKey) {
@@ -110,7 +110,7 @@ public class RodConfigManager {
     }
 
     public ItemStack getRodItemStack(String rodKey) {
-        return rodsItemStack.get(rodKey);
+        return rodItemStacks.get(rodKey);
     }
 
     public FishingRod findRodByDisplayName(String displayName) {

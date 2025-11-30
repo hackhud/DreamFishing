@@ -11,10 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import ua.hackhud.dreamFishing.entities.DropItem;
 import ua.hackhud.dreamFishing.entities.FishingRod;
 import ua.hackhud.dreamFishing.entities.Lake;
-import ua.hackhud.dreamFishing.service.FishingDelayService;
-import ua.hackhud.dreamFishing.service.FishingLakeService;
-import ua.hackhud.dreamFishing.service.FishingRodService;
-import ua.hackhud.dreamFishing.service.FishingRewardService;
+import ua.hackhud.dreamFishing.service.*;
 
 public class FishingListener implements Listener {
 
@@ -22,12 +19,14 @@ public class FishingListener implements Listener {
     private final FishingDelayService fishingDelayService;
     private final FishingRewardService fishingRewardService;
     private final FishingLakeService fishingLakeService;
+    private final LakeFullnessService lakeFullnessService;
 
-    public FishingListener(FishingRodService fishingRodService, FishingDelayService fishingDelayService, FishingRewardService fishingRewardService, FishingLakeService fishingLakeService) {
+    public FishingListener(FishingRodService fishingRodService, FishingDelayService fishingDelayService, FishingRewardService fishingRewardService, FishingLakeService fishingLakeService, LakeFullnessService lakeFullnessService) {
         this.fishingRodService = fishingRodService;
         this.fishingDelayService = fishingDelayService;
         this.fishingRewardService = fishingRewardService;
         this.fishingLakeService = fishingLakeService;
+        this.lakeFullnessService = lakeFullnessService;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -79,6 +78,7 @@ public class FishingListener implements Listener {
 
         fishingRodService.updateRodProgress(rod, fishingRod, player);
         fishingRewardService.executeRewards(drop, fishingRod, player, lake);
+        lakeFullnessService.consumeFullness(lake);
         fishingDelayService.cancelFishing(player);
     }
 }

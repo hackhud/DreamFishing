@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import ua.hackhud.dreamFishing.config.RodConfigManager;
 import ua.hackhud.dreamFishing.entities.FishingRod;
 import ua.hackhud.dreamFishing.entities.RodProgress;
-import ua.hackhud.dreamFishing.util.CommandExecutor;
+import ua.hackhud.dreamFishing.util.ServerCommandExecutor;
 import ua.hackhud.dreamFishing.util.ItemStackUtils;
 import ua.hackhud.dreamFishing.util.LoreParser;
 import ua.hackhud.dreamFishing.util.MessageUtils;
@@ -14,12 +14,12 @@ import ua.hackhud.dreamFishing.util.MessageUtils;
 public class FishingRodService {
 
     private final LoreParser loreParser;
-    private final CommandExecutor commandExecutor;
+    private final ServerCommandExecutor serverCommandExecutor;
     private final RodConfigManager rodConfigManager;
 
-    public FishingRodService(LoreParser loreParser, CommandExecutor commandExecutor, RodConfigManager rodConfigManager) {
+    public FishingRodService(LoreParser loreParser, ServerCommandExecutor serverCommandExecutor, RodConfigManager rodConfigManager) {
         this.loreParser = loreParser;
-        this.commandExecutor = commandExecutor;
+        this.serverCommandExecutor = serverCommandExecutor;
         this.rodConfigManager = rodConfigManager;
     }
 
@@ -54,7 +54,7 @@ public class FishingRodService {
             ItemStack transformedRod = rodConfigManager.getRodItemStack(fishingRod.getTransformTargetName());
             if (transformedRod != null) {
                 rod.setItemMeta(transformedRod.getItemMeta());
-                commandExecutor.executeForPlayer(fishingRod.getTransformCommands(), player);
+                serverCommandExecutor.executeForPlayer(fishingRod.getTransformCommands(), player);
             }
         }
     }

@@ -30,7 +30,7 @@ public class FishingLakeService {
             return null;
         }
 
-        Lake lake = getLakeByRegionList(regions);
+        Lake lake = findLakeByRegions(regions);
         if (lake == null) {
             MessageUtils.sendError(player, "Неизвестное озеро!");
             event.setCancelled(true);
@@ -51,9 +51,9 @@ public class FishingLakeService {
                 .anyMatch(lakeRod -> fishingRod.equals(lakeRod.getRod()));
     }
 
-    private Lake getLakeByRegionList(List<String> regions) {
+    private Lake findLakeByRegions(List<String> regions) {
         return regions.stream()
-                .map(region -> lakeConfigManager.getLakeByRegion(region))
+                .map(lakeConfigManager::getLakeByRegion)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
